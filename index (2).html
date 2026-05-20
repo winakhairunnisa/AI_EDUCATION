@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EduAI Indonesia – AI untuk Pendidikan Berkualitas</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <style>
+    :root {
+      --ink: #0f172a;
+      --paper: #f8fafc;
+      --blue: #2563eb;
+      --blue-light: #dbeafe;
+      --green: #059669;
+      --green-light: #d1fae5;
+      --orange: #ea580c;
+      --orange-light: #ffedd5;
+      --muted: #64748b;
+      --border: #e2e8f0;
+      --card: #ffffff;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: var(--paper);
+      color: var(--ink);
+      line-height: 1.6;
+    }
+
+    /* NAV */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(248,250,252,0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 2rem;
+      display: flex; align-items: center; justify-content: space-between;
+      height: 64px;
+    }
+    .nav-logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.3rem; font-weight: 900;
+      color: var(--blue);
+      text-decoration: none;
+    }
+    .nav-links { display: flex; gap: 2rem; list-style: none; }
+    .nav-links a {
+      text-decoration: none; color: var(--muted);
+      font-size: 0.9rem; font-weight: 500;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--blue); }
+    .nav-badge {
+      background: var(--blue); color: white;
+      padding: 0.35rem 1rem; border-radius: 999px;
+      font-size: 0.8rem; font-weight: 600;
+    }
+
+    /* HERO */
+    .hero {
+      min-height: 90vh;
+      display: grid; grid-template-columns: 1fr 1fr;
+      align-items: center; gap: 4rem;
+      padding: 6rem 5rem;
+      background: linear-gradient(135deg, #f0f7ff 0%, #f8fafc 60%, #ecfdf5 100%);
+      position: relative; overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute; top: -120px; right: -120px;
+      width: 500px; height: 500px;
+      background: radial-gradient(circle, #dbeafe 0%, transparent 70%);
+      border-radius: 50%;
+    }
+    .hero-tag {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      background: var(--blue-light); color: var(--blue);
+      padding: 0.4rem 1rem; border-radius: 999px;
+      font-size: 0.8rem; font-weight: 600;
+      margin-bottom: 1.5rem;
+    }
+    .hero h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2.5rem, 5vw, 4rem);
+      font-weight: 900; line-height: 1.1;
+      margin-bottom: 1.5rem;
+    }
+    .hero h1 span { color: var(--blue); }
+    .hero p {
+      font-size: 1.1rem; color: var(--muted);
+      max-width: 480px; margin-bottom: 2.5rem;
+    }
+    .hero-btns { display: flex; gap: 1rem; flex-wrap: wrap; }
+    .btn-primary {
+      background: var(--blue); color: white;
+      padding: 0.8rem 2rem; border-radius: 8px;
+      font-weight: 600; font-size: 0.95rem;
+      text-decoration: none; border: none; cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(37,99,235,0.3); }
+    .btn-outline {
+      background: transparent; color: var(--blue);
+      padding: 0.8rem 2rem; border-radius: 8px;
+      font-weight: 600; font-size: 0.95rem;
+      text-decoration: none; border: 2px solid var(--blue); cursor: pointer;
+      transition: background 0.2s;
+    }
+    .btn-outline:hover { background: var(--blue-light); }
+
+    /* Hero visual */
+    .hero-visual {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;
+      position: relative; z-index: 1;
+    }
+    .mini-card {
+      background: white; border-radius: 16px;
+      padding: 1.5rem; box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+      animation: float 4s ease-in-out infinite;
+    }
+    .mini-card:nth-child(2) { animation-delay: 0.5s; margin-top: 1.5rem; }
+    .mini-card:nth-child(3) { animation-delay: 1s; }
+    .mini-card:nth-child(4) { animation-delay: 1.5s; margin-top: 1.5rem; }
+    @keyframes float {
+      0%,100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+    .mini-card .icon { font-size: 2rem; margin-bottom: 0.5rem; }
+    .mini-card .label { font-size: 0.75rem; color: var(--muted); }
+    .mini-card .value { font-size: 1.4rem; font-weight: 700; color: var(--ink); }
+
+    /* STATS */
+    .stats {
+      display: grid; grid-template-columns: repeat(4, 1fr);
+      gap: 1px; background: var(--border);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+    .stat {
+      background: white; padding: 2.5rem 2rem; text-align: center;
+    }
+    .stat-num {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.5rem; font-weight: 900; color: var(--blue);
+    }
+    .stat-label { font-size: 0.85rem; color: var(--muted); margin-top: 0.25rem; }
+
+    /* SECTIONS */
+    section { padding: 5rem 5rem; }
+    .section-tag {
+      display: inline-block;
+      font-size: 0.75rem; font-weight: 700; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--blue);
+      margin-bottom: 1rem;
+    }
+    .section-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1.8rem, 3vw, 2.5rem);
+      font-weight: 900; line-height: 1.2;
+      margin-bottom: 1rem;
+    }
+    .section-sub { color: var(--muted); max-width: 560px; font-size: 1rem; margin-bottom: 3rem; }
+
+    /* FITUR */
+    .features-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem;
+    }
+    .feature-card {
+      background: var(--card); border-radius: 16px;
+      border: 1px solid var(--border);
+      padding: 2rem;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .feature-card:hover { transform: translateY(-4px); box-shadow: 0 12px 32px rgba(0,0,0,0.08); }
+    .feature-icon {
+      width: 52px; height: 52px; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.5rem; margin-bottom: 1.2rem;
+    }
+    .feature-icon.blue { background: var(--blue-light); }
+    .feature-icon.green { background: var(--green-light); }
+    .feature-icon.orange { background: var(--orange-light); }
+    .feature-card h3 { font-size: 1.05rem; font-weight: 700; margin-bottom: 0.5rem; }
+    .feature-card p { font-size: 0.88rem; color: var(--muted); line-height: 1.6; }
+
+    /* DASHBOARD */
+    .dashboard { background: var(--ink); color: white; }
+    .dashboard .section-tag { color: #60a5fa; }
+    .dashboard .section-title { color: white; }
+    .dashboard .section-sub { color: #94a3b8; }
+    .charts-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;
+    }
+    .chart-box {
+      background: #1e293b; border-radius: 16px;
+      padding: 1.8rem; border: 1px solid #334155;
+    }
+    .chart-box.wide { grid-column: span 2; }
+    .chart-title { font-size: 0.9rem; font-weight: 600; color: #e2e8f0; margin-bottom: 1.2rem; }
+    .chart-box canvas { max-height: 220px; }
+
+    /* BERITA */
+    .berita { background: #f0f7ff; }
+    .berita-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem;
+    }
+    .berita-card {
+      background: white; border-radius: 16px;
+      overflow: hidden; border: 1px solid var(--border);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .berita-card:hover { transform: translateY(-4px); box-shadow: 0 12px 32px rgba(0,0,0,0.1); }
+    .berita-img {
+      height: 140px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 3rem;
+    }
+    .berita-body { padding: 1.5rem; }
+    .berita-tag {
+      font-size: 0.7rem; font-weight: 700; letter-spacing: 0.08em;
+      text-transform: uppercase; color: var(--green);
+      background: var(--green-light);
+      padding: 0.2rem 0.6rem; border-radius: 999px;
+      display: inline-block; margin-bottom: 0.75rem;
+    }
+    .berita-card h3 { font-size: 0.95rem; font-weight: 700; margin-bottom: 0.5rem; line-height: 1.4; }
+    .berita-card p { font-size: 0.82rem; color: var(--muted); }
+
+    /* AI DEMO */
+    .demo { background: white; }
+    .demo-container {
+      display: grid; grid-template-columns: 1fr 1.5fr; gap: 4rem; align-items: start;
+    }
+    .demo-left { position: sticky; top: 5rem; }
+    .role-btns { display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 2rem; }
+    .role-btn {
+      padding: 0.9rem 1.5rem; border-radius: 10px;
+      border: 2px solid var(--border); background: white;
+      cursor: pointer; font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 0.9rem; font-weight: 600; text-align: left;
+      display: flex; align-items: center; gap: 0.75rem;
+      transition: all 0.2s;
+    }
+    .role-btn.active {
+      border-color: var(--blue); background: var(--blue-light); color: var(--blue);
+    }
+    .chat-window {
+      background: var(--paper); border-radius: 20px;
+      border: 1px solid var(--border); overflow: hidden;
+    }
+    .chat-header {
+      background: var(--blue); color: white;
+      padding: 1rem 1.5rem;
+      display: flex; align-items: center; gap: 0.75rem;
+    }
+    .chat-dot { width: 8px; height: 8px; border-radius: 50%; background: #86efac; }
+    .chat-header span { font-weight: 600; font-size: 0.9rem; }
+    .chat-messages { padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem; min-height: 300px; }
+    .msg { max-width: 80%; padding: 0.8rem 1.1rem; border-radius: 14px; font-size: 0.88rem; line-height: 1.5; }
+    .msg.ai { background: white; border: 1px solid var(--border); align-self: flex-start; border-bottom-left-radius: 4px; }
+    .msg.user { background: var(--blue); color: white; align-self: flex-end; border-bottom-right-radius: 4px; }
+    .chat-input-area {
+      border-top: 1px solid var(--border);
+      padding: 1rem 1.5rem;
+      display: flex; gap: 0.75rem;
+    }
+    .chat-input {
+      flex: 1; padding: 0.7rem 1rem; border-radius: 8px;
+      border: 1px solid var(--border); font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 0.88rem; outline: none;
+    }
+    .chat-input:focus { border-color: var(--blue); }
+    .chat-send {
+      background: var(--blue); color: white;
+      border: none; border-radius: 8px;
+      padding: 0.7rem 1.2rem; cursor: pointer;
+      font-weight: 600; font-size: 0.88rem;
+      transition: opacity 0.2s;
+    }
+    .chat-send:hover { opacity: 0.85; }
+
+    /* FOOTER */
+    footer {
+      background: var(--ink); color: #94a3b8;
+      padding: 3rem 5rem;
+      display: flex; justify-content: space-between; align-items: center;
+      flex-wrap: wrap; gap: 1rem;
+    }
+    footer .logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.2rem; font-weight: 900; color: white;
+    }
+    footer p { font-size: 0.85rem; }
+    .sdg-badge {
+      background: #1e293b; border-radius: 8px;
+      padding: 0.5rem 1rem; font-size: 0.8rem;
+      color: #60a5fa;
+    }
+
+    @media (max-width: 900px) {
+      .hero { grid-template-columns: 1fr; padding: 3rem 2rem; }
+      .hero-visual { display: none; }
+      .stats { grid-template-columns: repeat(2,1fr); }
+      section { padding: 3rem 2rem; }
+      .features-grid, .berita-grid { grid-template-columns: 1fr; }
+      .charts-grid { grid-template-columns: 1fr; }
+      .chart-box.wide { grid-column: span 1; }
+      .demo-container { grid-template-columns: 1fr; }
+      footer { flex-direction: column; padding: 2rem; }
+      nav { padding: 0 1rem; }
+      .nav-links { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a class="nav-logo" href="#">EduAI Indonesia</a>
+  <ul class="nav-links">
+    <li><a href="#fitur">Fitur</a></li>
+    <li><a href="#dashboard">Dashboard</a></li>
+    <li><a href="#berita">Berita Baik</a></li>
+    <li><a href="#demo">AI Demo</a></li>
+  </ul>
+  <span class="nav-badge">SDG 4 – Quality Education</span>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-content">
+    <div class="hero-tag">🇮🇩 Platform AI Pendidikan Indonesia</div>
+    <h1>Teknologi AI untuk <span>Pendidikan Merata</span> di Seluruh Nusantara</h1>
+    <p>Menjembatani kesenjangan pendidikan dari Sabang sampai Merauke dengan kecerdasan buatan yang adaptif, inklusif, dan dapat diakses oleh semua siswa Indonesia.</p>
+    <div class="hero-btns">
+      <a href="#demo" class="btn-primary">Coba AI Tutor →</a>
+      <a href="#dashboard" class="btn-outline">Lihat Dashboard</a>
+    </div>
+  </div>
+  <div class="hero-visual">
+    <div class="mini-card">
+      <div class="icon">🤖</div>
+      <div class="label">AI Tutor Aktif</div>
+      <div class="value">12.4K</div>
+    </div>
+    <div class="mini-card">
+      <div class="icon">📈</div>
+      <div class="label">Peningkatan Nilai</div>
+      <div class="value">+38%</div>
+    </div>
+    <div class="mini-card">
+      <div class="icon">🏫</div>
+      <div class="label">Sekolah Terjangkau</div>
+      <div class="value">2.847</div>
+    </div>
+    <div class="mini-card">
+      <div class="icon">📡</div>
+      <div class="label">Mode Offline</div>
+      <div class="value">✓ 3T</div>
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<div class="stats">
+  <div class="stat">
+    <div class="stat-num">34</div>
+    <div class="stat-label">Provinsi Terjangkau</div>
+  </div>
+  <div class="stat">
+    <div class="stat-num">1.2 Jt</div>
+    <div class="stat-label">Siswa Terbantu</div>
+  </div>
+  <div class="stat">
+    <div class="stat-num">87%</div>
+    <div class="stat-label">Kepuasan Guru</div>
+  </div>
+  <div class="stat">
+    <div class="stat-num">3T</div>
+    <div class="stat-label">Daerah Terlayani</div>
+  </div>
+</div>
+
+<!-- FITUR -->
+<section id="fitur">
+  <div class="section-tag">✦ Fitur Utama</div>
+  <h2 class="section-title">AI yang Dirancang untuk Pendidikan Indonesia</h2>
+  <p class="section-sub">Enam fitur unggulan yang mendukung ekosistem belajar mengajar dari tingkat SD hingga SMA di seluruh pelosok negeri.</p>
+  <div class="features-grid">
+    <div class="feature-card">
+      <div class="feature-icon blue">🧠</div>
+      <h3>Tutor Adaptif Personal</h3>
+      <p>AI menyesuaikan gaya belajar setiap siswa — visual, auditori, atau kinestetik — dan menyesuaikan kecepatan materi secara otomatis berdasarkan pemahaman.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon green">💬</div>
+      <h3>Chatbot Belajar 24/7</h3>
+      <p>Siswa bisa bertanya kapan saja, dalam Bahasa Indonesia maupun bahasa daerah. Tidak perlu menunggu guru — AI selalu siap membantu.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon orange">📝</div>
+      <h3>Koreksi Esai Otomatis</h3>
+      <p>Guru tidak perlu mengoreksi ratusan lembar jawaban sendirian. AI memberikan feedback terperinci tentang tata bahasa, logika, dan konten dalam hitungan detik.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon blue">📊</div>
+      <h3>Analitik Belajar Real-time</h3>
+      <p>Dashboard guru menampilkan progress tiap siswa, topik yang sulit dipahami, dan rekomendasi intervensi berbasis data — bukan asumsi.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon green">📡</div>
+      <h3>Mode Offline untuk Daerah 3T</h3>
+      <p>Konten pendidikan dapat diakses tanpa internet di daerah terpencil. Sinkronisasi otomatis saat terhubung kembali untuk mencatat progress belajar.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon orange">🎮</div>
+      <h3>Gamifikasi & Motivasi</h3>
+      <p>Poin, badge, dan leaderboard kelas membuat belajar terasa seperti bermain. Tingkat retensi belajar meningkat hingga 65% dibanding metode konvensional.</p>
+    </div>
+  </div>
+</section>
+
+<!-- DASHBOARD -->
+<section id="dashboard" class="dashboard">
+  <div class="section-tag">✦ Data & Dampak</div>
+  <h2 class="section-title">Dashboard Pendidikan Nasional</h2>
+  <p class="section-sub">Data real-time dampak penggunaan AI dalam ekosistem pendidikan Indonesia.</p>
+  <div class="charts-grid">
+    <div class="chart-box wide">
+      <div class="chart-title">📈 Rata-rata Nilai Siswa Sebelum vs Sesudah AI (Per Bulan)</div>
+      <canvas id="chartNilai"></canvas>
+    </div>
+    <div class="chart-box">
+      <div class="chart-title">🗺️ Distribusi Pengguna per Wilayah</div>
+      <canvas id="chartWilayah"></canvas>
+    </div>
+    <div class="chart-box">
+      <div class="chart-title">📉 Tren Kesenjangan Kota vs Desa</div>
+      <canvas id="chartKesenjangan"></canvas>
+    </div>
+  </div>
+</section>
+
+<!-- BERITA BAIK -->
+<section id="berita" class="berita">
+  <div class="section-tag">✦ Berita Baik</div>
+  <h2 class="section-title">Cerita Sukses dari Seluruh Nusantara</h2>
+  <p class="section-sub">Dampak nyata teknologi AI pendidikan dari berbagai penjuru Indonesia.</p>
+  <div class="berita-grid">
+    <div class="berita-card">
+      <div class="berita-img" style="background:#dbeafe;">🏔️</div>
+      <div class="berita-body">
+        <span class="berita-tag">NTT</span>
+        <h3>Siswa di Flores Raih Nilai UN Tertinggi Berkat AI Tutor</h3>
+        <p>SDN Inpres Maumere mencatat peningkatan rata-rata nilai 42 poin setelah 6 bulan menggunakan platform EduAI.</p>
+      </div>
+    </div>
+    <div class="berita-card">
+      <div class="berita-img" style="background:#d1fae5;">🌿</div>
+      <div class="berita-body">
+        <span class="berita-tag">Papua</span>
+        <h3>Guru di Jayawijaya Kini Punya Asisten AI untuk 80 Siswa</h3>
+        <p>Dengan koneksi internet minim, mode offline EduAI memungkinkan pembelajaran adaptif di daerah pegunungan Papua.</p>
+      </div>
+    </div>
+    <div class="berita-card">
+      <div class="berita-img" style="background:#ffedd5;">🌊</div>
+      <div class="berita-body">
+        <span class="berita-tag">Sulawesi</span>
+        <h3>Kesenjangan Nilai Kota-Desa di Sulbar Turun 28%</h3>
+        <p>Kabupaten Mamuju melaporkan penurunan signifikan disparitas pendidikan berkat program AI adaptif selama satu tahun.</p>
+      </div>
+    </div>
+    <div class="berita-card">
+      <div class="berita-img" style="background:#ede9fe;">🏝️</div>
+      <div class="berita-body">
+        <span class="berita-tag">Maluku</span>
+        <h3>500 Siswa Kepulauan Aru Akses Belajar Tanpa Internet</h3>
+        <p>Tablet berisi konten EduAI offline menjadi solusi nyata bagi siswa di pulau-pulau terpencil Maluku.</p>
+      </div>
+    </div>
+    <div class="berita-card">
+      <div class="berita-img" style="background:#fce7f3;">🌺</div>
+      <div class="berita-body">
+        <span class="berita-tag">Kalimantan</span>
+        <h3>Chatbot Bahasa Dayak Bantu Literasi Digital Siswa Pedalaman</h3>
+        <p>EduAI kini mendukung percakapan dalam bahasa daerah Dayak Ngaju untuk meningkatkan keterlibatan siswa.</p>
+      </div>
+    </div>
+    <div class="berita-card">
+      <div class="berita-img" style="background:#ecfdf5;">🌾</div>
+      <div class="berita-body">
+        <span class="berita-tag">NTB</span>
+        <h3>Angka Putus Sekolah di Lombok Turun 33% dalam Setahun</h3>
+        <p>Gamifikasi dan sistem reward EduAI berhasil meningkatkan motivasi siswa dan mengurangi angka putus sekolah.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- AI DEMO -->
+<section id="demo" class="demo">
+  <div class="section-tag">✦ Coba Langsung</div>
+  <h2 class="section-title">AI Tutor Interaktif</h2>
+  <p class="section-sub">Pilih peranmu dan rasakan pengalaman belajar berbasis AI yang dipersonalisasi.</p>
+  <div class="demo-container">
+    <div class="demo-left">
+      <p style="font-size:0.85rem;color:var(--muted);font-weight:600;margin-bottom:0.75rem;">SAYA ADALAH:</p>
+      <div class="role-btns">
+        <button class="role-btn active" onclick="setRole('siswa','🎓')">🎓 Siswa SMP/SMA</button>
+        <button class="role-btn" onclick="setRole('guru','👨‍🏫')">👨‍🏫 Guru</button>
+        <button class="role-btn" onclick="setRole('ortu','👨‍👩‍👧')">👨‍👩‍👧 Orang Tua</button>
+      </div>
+      <div style="background:var(--blue-light);border-radius:12px;padding:1.2rem;">
+        <p style="font-size:0.82rem;color:var(--blue);font-weight:600;">💡 Tips</p>
+        <p style="font-size:0.82rem;color:#1e40af;margin-top:0.25rem;">Coba tanya tentang materi pelajaran, cara belajar efektif, atau minta penjelasan konsep yang sulit!</p>
+      </div>
+    </div>
+    <div class="chat-window">
+      <div class="chat-header">
+        <div class="chat-dot"></div>
+        <span>EduAI – Tutor Pintarmu 🤖</span>
+      </div>
+      <div class="chat-messages" id="chatMessages">
+        <div class="msg ai">Halo! Saya EduAI, tutor pintarmu. 👋 Saya siap membantu kamu belajar dengan cara yang menyenangkan. Mau mulai dari mana hari ini?</div>
+      </div>
+      <div class="chat-input-area">
+        <input class="chat-input" id="chatInput" type="text" placeholder="Ketik pertanyaanmu di sini..." onkeydown="if(event.key==='Enter')sendChat()">
+        <button class="chat-send" onclick="sendChat()">Kirim →</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div>
+    <div class="logo">EduAI Indonesia</div>
+    <p style="margin-top:0.5rem;font-size:0.82rem;">Platform open-source AI untuk pendidikan berkualitas di Indonesia.</p>
+  </div>
+  <p style="font-size:0.82rem;">© 2025 EduAI Indonesia · Tugas Pemrograman Web</p>
+  <div class="sdg-badge">🎯 SDG 4 – Quality Education</div>
+</footer>
+
+<script>
+  // CHARTS
+  const chartColors = { blue:'#2563eb', green:'#059669', orange:'#ea580c', light:'#60a5fa', muted:'#475569' };
+
+  // Nilai
+  const ctxNilai = document.getElementById('chartNilai').getContext('2d');
+  new Chart(ctxNilai, {
+    type: 'line',
+    data: {
+      labels: ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu'],
+      datasets: [
+        { label: 'Sebelum AI', data: [58,60,59,61,60,62,61,63], borderColor: chartColors.muted, backgroundColor: 'rgba(71,85,105,0.1)', tension: 0.4, fill: true },
+        { label: 'Sesudah AI', data: [58,63,68,72,75,78,81,85], borderColor: chartColors.blue, backgroundColor: 'rgba(37,99,235,0.15)', tension: 0.4, fill: true }
+      ]
+    },
+    options: {
+      responsive: true, plugins: { legend: { labels: { color:'#e2e8f0', font:{ size:11 } } } },
+      scales: { x:{ ticks:{color:'#94a3b8'}, grid:{color:'#1e293b'} }, y:{ ticks:{color:'#94a3b8'}, grid:{color:'#334155'}, min:50, max:100 } }
+    }
+  });
+
+  // Wilayah
+  const ctxWilayah = document.getElementById('chartWilayah').getContext('2d');
+  new Chart(ctxWilayah, {
+    type: 'doughnut',
+    data: {
+      labels: ['Jawa','Sumatera','Kalimantan','Sulawesi','Papua & Maluku','Lainnya'],
+      datasets: [{ data: [38,22,14,12,8,6], backgroundColor: ['#2563eb','#059669','#ea580c','#7c3aed','#db2777','#0891b2'], borderWidth: 0 }]
+    },
+    options: { responsive: true, plugins: { legend: { position:'bottom', labels:{ color:'#94a3b8', font:{size:10}, padding:10 } } } }
+  });
+
+  // Kesenjangan
+  const ctxKesenjangan = document.getElementById('chartKesenjangan').getContext('2d');
+  new Chart(ctxKesenjangan, {
+    type: 'bar',
+    data: {
+      labels: ['2021','2022','2023','2024','2025'],
+      datasets: [
+        { label: 'Kota', data: [78,79,80,82,85], backgroundColor: chartColors.blue },
+        { label: 'Desa', data: [55,57,61,67,74], backgroundColor: chartColors.green }
+      ]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { labels: { color:'#e2e8f0', font:{size:11} } } },
+      scales: { x:{ ticks:{color:'#94a3b8'}, grid:{color:'#1e293b'} }, y:{ ticks:{color:'#94a3b8'}, grid:{color:'#334155'}, min:40 } }
+    }
+  });
+
+  // CHAT
+  let currentRole = 'siswa';
+  const responses = {
+    siswa: [
+      'Tentu! Ayo kita pelajari bareng. Kamu lebih suka penjelasan singkat atau contoh soal dulu? 📚',
+      'Bagus pertanyaannya! Coba kita pecah jadi langkah-langkah kecil supaya lebih mudah dipahami. 🧩',
+      'Kamu sudah mencoba menjawabnya sendiri dulu? Kalau belum, yuk kita coba bersama! 💪',
+      'Ini adalah topik yang sering membingungkan. Tapi tenang, saya punya cara mudah untuk menjelaskannya! ✨',
+      'Hebat! Kamu sudah hampir benar. Mari kita sempurnakan jawabanmu bersama. 🎯'
+    ],
+    guru: [
+      'Saya bisa membantu Bapak/Ibu menganalisis progress siswa di kelas. Mau lihat laporan yang mana? 📊',
+      'Berdasarkan data, ada 3 siswa yang membutuhkan perhatian lebih pada topik ini. Saya bisa siapkan modul remedial! 🎓',
+      'Materi ajar sudah saya siapkan dengan diferensiasi untuk 3 level kemampuan berbeda. 📋',
+      'Sistem koreksi otomatis sudah aktif. Guru dapat fokus pada interaksi langsung dengan siswa. ✅',
+    ],
+    ortu: [
+      'Selamat datang! Saya bisa bantu Bapak/Ibu memantau perkembangan belajar anak setiap hari. 👨‍👩‍👧',
+      'Nilai anak Anda minggu ini meningkat 12 poin! Terutama pada mata pelajaran Matematika. 📈',
+      'Anak Anda sangat aktif belajar — sudah menyelesaikan 5 modul minggu ini. Luar biasa! 🌟',
+      'Ada saran kegiatan belajar yang bisa dilakukan di rumah untuk mendukung pelajaran minggu ini. 🏠',
+    ]
+  };
+
+  function setRole(role, emoji) {
+    currentRole = role;
+    document.querySelectorAll('.role-btn').forEach(b => b.classList.remove('active'));
+    event.target.closest('.role-btn').classList.add('active');
+    const msgs = document.getElementById('chatMessages');
+    msgs.innerHTML = `<div class="msg ai">${emoji} Halo! Mode ${role} aktif. Saya siap membantu kamu! Apa yang ingin kamu tanyakan?</div>`;
+  }
+
+  function sendChat() {
+    const input = document.getElementById('chatInput');
+    const text = input.value.trim();
+    if (!text) return;
+    const msgs = document.getElementById('chatMessages');
+    msgs.innerHTML += `<div class="msg user">${text}</div>`;
+    input.value = '';
+    msgs.scrollTop = msgs.scrollHeight;
+    setTimeout(() => {
+      const arr = responses[currentRole];
+      const reply = arr[Math.floor(Math.random() * arr.length)];
+      msgs.innerHTML += `<div class="msg ai">${reply}</div>`;
+      msgs.scrollTop = msgs.scrollHeight;
+    }, 700);
+  }
+</script>
+</body>
+</html>
